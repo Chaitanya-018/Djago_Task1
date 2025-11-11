@@ -16,11 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from basic.views import sample
-from basic.views import sample1
-from basic.views import sampleInfo
-from basic.views import dynamicResponse
+from basic.views import sample,sample1,sampleInfo,dynamicResponse,health
 from basic.views import addition, subtraction, multiplication, division
+from basic.views import addStudent , addPost
+from basic.views import orm_operations
 
 
 urlpatterns = [
@@ -29,10 +28,15 @@ urlpatterns = [
     path('welcome/',sample1),
     path('info/',sampleInfo),
     path('dynamic/',dynamicResponse),
-    path('add/',addition),
+    #path('add/',addition),
     path("sub/", subtraction),
     path("mul/", multiplication),
     path("div/", division),
+    path("health/",health),
+    path("student/",addStudent),
+    path("insta/",addPost),
+    path('orm/', orm_operations),
+
 
 
 
