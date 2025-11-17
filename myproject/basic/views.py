@@ -6,6 +6,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from basic.models import StudentNew, InstaPost
 
+
 # Create your views here.
 
 def sample(request):
@@ -182,3 +183,9 @@ def orm_operations(request):
     }
     return JsonResponse(data, safe=False)
 
+
+
+def job1(request):
+    return JsonResponse({"message":"u have successfully applied for job1"},status=200) 
+def job2(request):
+    return JsonResponse({"message":"u have successfully applied for job2"},status=200)
