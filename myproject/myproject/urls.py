@@ -21,6 +21,7 @@ from basic.views import addition, subtraction, multiplication, division
 from basic.views import addStudent , addPost
 from basic.views import orm_operations
 from basic.views import job1,job2
+from basic.views import signUp
 
 
 urlpatterns = [
@@ -38,7 +39,8 @@ urlpatterns = [
     path("insta/",addPost),
     path('orm/', orm_operations),
     path('job1/',job1),
-    path('job2/',job2)  
+    path('job2/',job2),
+    path('signup/',signUp) 
 
 
 
