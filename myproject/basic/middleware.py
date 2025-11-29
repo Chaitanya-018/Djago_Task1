@@ -176,7 +176,7 @@ class PasswordMiddleware:
             # 6. Should not be too weak (common bad passwords)
             weak_passwords = [
                 "123456", "12345678", "123456789", "password", "qwerty",
-                "abc123", "111111", "iloveyou", "admin", "welcome"
+                "abc123", "111111", "iloveyou", "admin", "welcome","password123"
             ]
 
             if password.lower() in weak_passwords:

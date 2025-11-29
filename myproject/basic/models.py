@@ -15,7 +15,7 @@ class InstaPost(models.Model):
     post_date = models.DateField()
     post_description = models.TextField()
 
-
+#users login model 
 class Users(models.Model):
     username=models.CharField(max_length=100,unique=True)
     email=models.EmailField(unique=True)

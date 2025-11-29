@@ -6,6 +6,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from basic.models import StudentNew, InstaPost
 from basic.models import Users
+from django.contrib.auth.hashers import make_password,check_password
 
 # Create your views here.
 
@@ -121,13 +122,7 @@ def addStudent(request):
         return JsonResponse({"status":"success","message":"student record deleted successfully","deleted data":get_delting_data},status=200)
     return JsonResponse({"error":"use post method"},status=400)
 
-
-
-
-
-
 #task insta post
-
 @csrf_exempt
 def addPost(request):
     print(request.method)
@@ -146,10 +141,7 @@ def addPost(request):
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Use POST method only"}, status=405)
 
-
-
 #ORM methods Task
-
 def orm_operations(request):
     #1.Get all records
     all_students = list(StudentNew.objects.values())
@@ -183,13 +175,23 @@ def orm_operations(request):
     }
     return JsonResponse(data, safe=False)
 
-
-
 def job1(request):
     return JsonResponse({"message":"u have successfully applied for job1"},status=200) 
 def job2(request):
     return JsonResponse({"message":"u have successfully applied for job2"},status=200)
 
+
+# @csrf_exempt
+# def signUp(request):
+#     if request.method=="POST":
+#         data=json.loads(request.body)
+#         print(data)
+#         user=Users.objects.create(
+#             username=data.get("username"),
+#             email=data.get("email"),
+#             password=data.get("password")
+#             )
+#         return JsonResponse({"status":'success'},status=200)
 
 @csrf_exempt
 def signUp(request):
@@ -199,6 +201,57 @@ def signUp(request):
         user=Users.objects.create(
             username=data.get("username"),
             email=data.get("email"),
-            password=data.get("password")
+            password=make_password(data.get("password"))
             )
-        return JsonResponse({"status":'success'},status=200)   
+        return JsonResponse({"status":'success'},status=200)
+
+@csrf_exempt
+def login(request):
+    if request.method == "POST":
+        data = request.POST   #in postman use form
+        print(data)
+        username = data.get("username")
+        password = data.get("password")
+        try:
+            user = Users.objects.get(username=username)
+            if check_password(password, user.password):
+                return JsonResponse(
+                    {"status": "success", "message": "successfully logged in"},
+                    status=200
+                )
+            else:
+                return JsonResponse(
+                    {"status": "failure", "message": "invalid password"},
+                    status=400
+                )
+
+        except Users.DoesNotExist:
+            return JsonResponse(
+                {"status": "failure", "message": "user not found"},
+                status=400
+            )
+
+    
+
+
+
+
+    
+# @csrf_exempt
+# def check(request):
+#     ipdata=request.POST
+#     print(ipdata)
+#     hashed=make_password(ipdata.get("ip"))
+#     print(hashed)
+#     return JsonResponse({"status":"success","data":hashed},status=200) 
+# 
+
+@csrf_exempt
+def check(request):
+    hashed="pbkdf2_sha256$870000$QFdX4auSTeBp9ptDBK8VU6$AYXfvB+2WYIc0MxVCS4e3SqGkijsX5tTUtSS3BvC08Q="
+    ipdata=request.POST
+    print(ipdata)
+    # hashed=make_password(ipdata.get("ip"))
+    x=check_password(ipdata.get("ip"),hashed)
+    print(x)
+    return JsonResponse({"status":"success","data":hashed},status=200)   
