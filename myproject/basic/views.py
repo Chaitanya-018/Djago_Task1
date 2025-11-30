@@ -8,6 +8,9 @@ from basic.models import StudentNew, InstaPost
 from basic.models import Users
 from django.contrib.auth.hashers import make_password,check_password
 
+import jwt
+from django.conf import settings
+
 # Create your views here.
 
 def sample(request):
@@ -193,43 +196,46 @@ def job2(request):
 #             )
 #         return JsonResponse({"status":'success'},status=200)
 
-@csrf_exempt
-def signUp(request):
-    if request.method=="POST":
-        data=json.loads(request.body)
-        print(data)
-        user=Users.objects.create(
-            username=data.get("username"),
-            email=data.get("email"),
-            password=make_password(data.get("password"))
-            )
-        return JsonResponse({"status":'success'},status=200)
 
-@csrf_exempt
-def login(request):
-    if request.method == "POST":
-        data = request.POST   #in postman use form
-        print(data)
-        username = data.get("username")
-        password = data.get("password")
-        try:
-            user = Users.objects.get(username=username)
-            if check_password(password, user.password):
-                return JsonResponse(
-                    {"status": "success", "message": "successfully logged in"},
-                    status=200
-                )
-            else:
-                return JsonResponse(
-                    {"status": "failure", "message": "invalid password"},
-                    status=400
-                )
+#hashed password --- signup and login code -- 25/11
 
-        except Users.DoesNotExist:
-            return JsonResponse(
-                {"status": "failure", "message": "user not found"},
-                status=400
-            )
+# @csrf_exempt
+# def signUp(request):
+#     if request.method=="POST":
+#         data=json.loads(request.body)
+#         print(data)
+#         user=Users.objects.create(
+#             username=data.get("username"),
+#             email=data.get("email"),
+#             password=make_password(data.get("password"))
+#             )
+#         return JsonResponse({"status":'success'},status=200)
+
+# @csrf_exempt
+# def login(request):
+#     if request.method == "POST":
+#         data = request.POST   #in postman use form-data
+#         print(data)
+#         username = data.get("username")
+#         password = data.get("password")
+#         try:
+#             user = Users.objects.get(username=username)
+#             if check_password(password, user.password):
+#                 return JsonResponse(
+#                     {"status": "success", "message": "successfully logged in"},
+#                     status=200
+#                 )
+#             else:
+#                 return JsonResponse(
+#                     {"status": "failure", "message": "invalid password"},
+#                     status=400
+#                 )
+
+#         except Users.DoesNotExist:
+#             return JsonResponse(
+#                 {"status": "failure", "message": "user not found"},
+#                 status=400
+#             )
 
     
 
@@ -248,10 +254,49 @@ def login(request):
 
 @csrf_exempt
 def check(request):
-    hashed="pbkdf2_sha256$870000$QFdX4auSTeBp9ptDBK8VU6$AYXfvB+2WYIc0MxVCS4e3SqGkijsX5tTUtSS3BvC08Q="
+    hashed="pbkdf2_sha256$870000$78ceupzvLJDISymf1qUS1z$O21ZSLR0TR0/2gGpH9oPSnVvjCNWQ534s5kPk6Dcyh8="
     ipdata=request.POST
     print(ipdata)
-    # hashed=make_password(ipdata.get("ip"))
+    #hashed=make_password(ipdata.get("ip"))
     x=check_password(ipdata.get("ip"),hashed)
     print(x)
-    return JsonResponse({"status":"success","data":hashed},status=200)   
+    return JsonResponse({"status":"success","data":x},status=200)   
+
+
+
+
+#tokens -- 29/11/2025 
+
+
+@csrf_exempt
+def signUp(request):
+    if request.method=="POST":
+        data=json.loads(request.body)
+        print(data)
+        user=Users.objects.create(
+            username=data.get("username"),
+            email=data.get("email"),
+            password=make_password(data.get("password"))
+            )
+        return JsonResponse({"status":'success'},status=200)
+
+@csrf_exempt
+def login(request):
+    if request.method=="POST":
+        data=request.POST
+        print(data)
+        username=data.get('username')
+        password=data.get("password")        
+        try:
+            user=Users.objects.get(username=username)
+            if check_password(password,user.password):
+                # token="a json web token"
+                #creating jwt token
+                payload={"username":username,"email":user.email,"id":user.id}
+                token=jwt.encode(payload,settings.SECRET_KEY,algorithm="HS256")
+
+                return JsonResponse({"status":'successfully loggedin','token':token},status=200)
+            else:
+                return JsonResponse({"status":'failure','message':'invalid password'},status=400)
+        except Users.DoesNotExist:
+            return JsonResponse({"status":'failure','message':'user not found'},status=400)
