@@ -11,6 +11,9 @@ from django.contrib.auth.hashers import make_password,check_password
 import jwt
 from django.conf import settings
 
+from datetime import datetime,timedelta
+from zoneinfo import ZoneInfo
+
 # Create your views here.
 
 def sample(request):
@@ -280,6 +283,48 @@ def signUp(request):
             )
         return JsonResponse({"status":'success'},status=200)
 
+# @csrf_exempt
+# def login(request):
+#     if request.method=="POST":
+#         data=request.POST
+#         print(data)
+#         username=data.get('username')
+#         password=data.get("password")        
+#         try:
+#             user=Users.objects.get(username=username)
+#             if check_password(password,user.password):
+#                 payload={"username":username,"email":user.email,"id":user.id}
+#                 token=jwt.encode(payload,settings.SECRET_KEY,algorithm="HS256")
+
+#                 return JsonResponse({"status":'successfully loggedin','token':token},status=200)
+#             else:
+#                 return JsonResponse({"status":'failure','message':'invalid password'},status=400)
+#         except Users.DoesNotExist:
+#             return JsonResponse({"status":'failure','message':'user not found'},status=400)
+
+
+#01/12/2025 tokens expiry date
+# @csrf_exempt
+# def login(request):
+#     if request.method=="POST":
+#         data=request.POST
+#         print(data)
+#         username=data.get('username')
+#         password=data.get("password")        
+#         try:
+#             user=Users.objects.get(username=username)
+#             issued_time=datetime.now(ZoneInfo("Asia/Kolkata"))  #in token we will get issued date and time
+#             if check_password(password,user.password):
+#                 payload={"username":username,"email":user.email,"id":user.id}
+#                 token=jwt.encode(payload,settings.SECRET_KEY,algorithm="HS256")
+
+#                 return JsonResponse({"status":'successfully loggedin','token':token, "issued_at":issued_time},status=200)
+#             else:
+#                 return JsonResponse({"status":'failure','message':'invalid password'},status=400)
+#         except Users.DoesNotExist:
+#             return JsonResponse({"status":'failure','message':'user not found'},status=400)
+
+
 @csrf_exempt
 def login(request):
     if request.method=="POST":
@@ -289,13 +334,13 @@ def login(request):
         password=data.get("password")        
         try:
             user=Users.objects.get(username=username)
+            issued_time=datetime.now(ZoneInfo("Asia/Kolkata"))  #it will expire after one hour of issue time
+            expired_time=issued_time+timedelta(hours=25)  #or hours=30
             if check_password(password,user.password):
-                # token="a json web token"
-                #creating jwt token
-                payload={"username":username,"email":user.email,"id":user.id}
+                payload={"username":username,"email":user.email,"id":user.id,"exp":expired_time}
                 token=jwt.encode(payload,settings.SECRET_KEY,algorithm="HS256")
 
-                return JsonResponse({"status":'successfully loggedin','token':token},status=200)
+                return JsonResponse({"status":'successfully loggedin','token':token, "issued_at":issued_time,"expires at":expired_time,"expired_in":int((expired_time-issued_time).total_seconds()/60)},status=200)
             else:
                 return JsonResponse({"status":'failure','message':'invalid password'},status=400)
         except Users.DoesNotExist:
