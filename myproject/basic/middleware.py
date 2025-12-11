@@ -2,6 +2,9 @@ from django.http import JsonResponse
 import json
 import re
 from basic.models import Users
+from django.conf import settings
+import jwt
+
 
 class basicMiddleware:
     def __init__(self,get_response):
@@ -183,6 +186,35 @@ class PasswordMiddleware:
                 return JsonResponse({"error": "Password is too weak. Choose a stronger password."}, status=400)
 
         return self.get_response(request)        
+    
+
+#02/12/25
+
+class authenticate_middleware():
+    def __init__(self,get_response):
+        self.get_response=get_response
+    def __call__(self,request):
+        if request.path=="/users/":
+            token=request.headers.get("Authorization")
+            print(token,"token") #prints bearer <token>
+            if not token:
+                return JsonResponse({"error":"Authorization token missing"},status=401) 
+            token_value=token.split(" ")[1] #prints only token without bearer
+            print(token_value,"token_value") #prints ['bearer','<token>']
+
+            #now we will decode the token data
+            try:
+                decoded_data=jwt.decode(token_value,settings.SECRET_KEY,algorithms=["HS256"])
+                print(decoded_data,"decoded_data")               
+                request.token_data=decoded_data               
+            except jwt.ExpiredSignatureError:
+                return JsonResponse({"error":"token has expired, please login again"},status=401) 
+            except jwt.exceptions.InvalidSignatureError:
+                return JsonResponse({"error":"invalid token signature"},status=401)    
+
+        return self.get_response(request)
+
+    
 
  
 

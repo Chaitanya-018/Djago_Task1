@@ -345,3 +345,22 @@ def login(request):
                 return JsonResponse({"status":'failure','message':'invalid password'},status=400)
         except Users.DoesNotExist:
             return JsonResponse({"status":'failure','message':'user not found'},status=400)
+        
+
+
+#02/12/25
+
+@csrf_exempt  #build an api to get all users from Users table
+def getAllUsers(request):
+    if request.method=="GET":
+        users=list(Users.objects.values())
+        print(request.token_data,"token_data in view")
+        print(request.token_data.get("username"),"username from token")
+        print(users,"users list")
+        for user in users:
+            print(user["username"],"username from users list")
+            if  user["username"] == request.token_data.get("username"):
+                return JsonResponse({"status":"success","loggedin_user":request.token_data,"data":users},status=200)
+        else:   
+                return JsonResponse({"error":"unauthorized access"},status=401)
+                

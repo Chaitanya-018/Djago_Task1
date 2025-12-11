@@ -21,7 +21,7 @@ from basic.views import addition, subtraction, multiplication, division
 from basic.views import addStudent , addPost
 from basic.views import orm_operations
 from basic.views import job1,job2
-from basic.views import signUp,check,login
+from basic.views import signUp,check,login,getAllUsers
 
 
 urlpatterns = [
@@ -43,8 +43,6 @@ urlpatterns = [
     path('signup/',signUp) ,
     path('check/',check),
     path('login/',login),
-
-
-
+    path('users/',getAllUsers),
 
 ]
