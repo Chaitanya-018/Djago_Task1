@@ -22,6 +22,7 @@ from basic.views import addStudent , addPost
 from basic.views import orm_operations
 from basic.views import job1,job2
 from basic.views import signUp,check,login,getAllUsers
+from basic.views import home,contact,services,projects,welcome,aboutus
 
 
 urlpatterns = [
@@ -44,5 +45,12 @@ urlpatterns = [
     path('check/',check),
     path('login/',login),
     path('users/',getAllUsers),
+
+    path('home/',home,name='home'),
+    path('about/',aboutus,name='about'),
+    path('welcome/',welcome,name='welcome'),
+    path('contact/',contact,name='contact'),
+    path('services/',services,name='services'),
+    path('projects/',projects,name='projects'),
 
 ]
